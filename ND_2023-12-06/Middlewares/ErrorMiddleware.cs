@@ -7,10 +7,12 @@ namespace ND_2023_12_06.Middlewares;
 public class ErrorMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly ILogger<ErrorMiddleware> _logger;
 
-    public ErrorMiddleware(RequestDelegate next)
+    public ErrorMiddleware(RequestDelegate next, ILogger<ErrorMiddleware> logger)
     {
         _next = next;
+        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext httpContext)
@@ -38,11 +40,13 @@ public class ErrorMiddleware
             statusCode = 404;
             message = $"{ex.Message}";
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             statusCode = 400;
-            message = $"{ex.Message}";
+            message = $"Unexpected exception was thrown. Please try again.";
         }
+
+        _logger.Log(LogLevel.Error, $"Error: {message}");
 
         httpContext.Response.StatusCode = statusCode;
 

@@ -15,8 +15,8 @@ public class SchoolController : ControllerBase
     private readonly ResponseHelper _handler;
 
     public SchoolController(
-        ISchoolService schoolService, 
-        ILogger<SchoolController> logger, 
+        ISchoolService schoolService,
+        ILogger<SchoolController> logger,
         ResponseHelper handler)
     {
         _schoolService = schoolService;
@@ -27,122 +27,97 @@ public class SchoolController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateDepartamentas([FromBody] DepartamentasRequest request)
     {
-        return await _handler.HandleErrors(async () => 
+        var departamentas = Departamentas.ConvertFromRequest(request);
+        var response = await _schoolService.CreateDepartamentas(departamentas);
+
+        if (!response)
         {
-            var departamentas = Departamentas.ConvertFromRequest(request);
-            var response = await _schoolService.CreateDepartamentas(departamentas);
+            return BadRequest();
+        }
 
-            if (!response)
-            {
-                return BadRequest();
-            }
-
-            return Ok();
-        });
+        return Ok();
     }
 
     [HttpPost]
     public async Task<IActionResult> CreatePaskaita([FromBody] PaskaitaRequest request)
     {
-        return await _handler.HandleErrors(async () =>
+        var paskaita = Paskaita.ConvertFromRequest(request);
+        var response = await _schoolService.CreatePaskaita(paskaita);
+
+        if (!response)
         {
-            var paskaita = Paskaita.ConvertFromRequest(request);
-            var response = await _schoolService.CreatePaskaita(paskaita);
+            return BadRequest();
+        }
 
-            if (!response)
-            {
-                return BadRequest();
-            }
-
-            return Ok();
-        });
+        return Ok();
     }
 
     [HttpPost]
     public async Task<IActionResult> CreateStudentas([FromBody] StudentasRequest request)
     {
-        return await _handler.HandleErrors(async () =>
+        var studentas = Studentas.ConvertFromRequest(request);
+        var response = await _schoolService.CreateStudentas(studentas);
+
+        if (!response)
         {
-            var studentas = Studentas.ConvertFromRequest(request);
+            return BadRequest();
+        }
 
-            var response = await _schoolService.CreateStudentas(studentas);
-
-            if (!response)
-            {
-                return BadRequest();
-            }
-
-            return Ok();
-        });
+        return Ok();
     }
 
     [HttpGet]
     public async Task<IActionResult> ShowDepartamentai()
     {
-        return await _handler.HandleErrors(async () =>
-        {
-            var result = await _schoolService.ShowDepartamentai();
+        var result = await _schoolService.ShowDepartamentai();
 
-            // Convert to response object
-            var response = result.Select(a => Departamentas.ConvertToResponse(a));
+        // Convert to response object
+        var response = result.Select(a => Departamentas.ConvertToResponse(a));
 
-            return Ok(response);
-        });
+        return Ok(response);
     }
 
     [HttpGet]
     public async Task<IActionResult> ShowPaskaitos()
     {
-        return await _handler.HandleErrors(async () =>
-        {
-            var result = await _schoolService.ShowPaskaitos();
-            var response = result.Select(a => Paskaita.ConvertToResponse(a));
-            return Ok(response);
-        });
+        var result = await _schoolService.ShowPaskaitos();
+        var response = result.Select(a => Paskaita.ConvertToResponse(a));
+        return Ok(response);
     }
 
     [HttpGet]
     public async Task<IActionResult> ShowStudentai()
     {
-        return await _handler.HandleErrors(async () =>
-        {
-            var result = await _schoolService.ShowStudentai();
-            var response = result.Select(a => Studentas.ConvertToResponse(a));
+        var result = await _schoolService.ShowStudentai();
+        var response = result.Select(a => Studentas.ConvertToResponse(a));
 
-            return Ok(response);
-        });
+        return Ok(response);
     }
 
     [HttpPut]
     public async Task<IActionResult> UpdateDepartamentasForStudentas(Guid DepartamentasId, Guid StudentasId)
     {
-        return await _handler.HandleErrors(async () =>
+        bool response = await _schoolService.UpdateDepartamentasForStudentas(StudentasId: StudentasId, DepartamentasId: DepartamentasId);
+
+        if (!response)
         {
-            bool response = await _schoolService.UpdateDepartamentasForStudentas(StudentasId, DepartamentasId);
+            return NotFound();
+        }
 
-            if (!response)
-            {
-                return NotFound();
-            }
-
-            return Ok();
-        });
+        return Ok();
     }
 
     [HttpPut]
     public async Task<IActionResult> AddPaskaitaToDepartamentas(Guid DepartamentasId, Guid PaskaitaId)
     {
-        return await _handler.HandleErrors(async () =>
+        bool response = await _schoolService.UpdatePaskaitaForDepartamentas(PaskaitaId: PaskaitaId, DepartamentasId: DepartamentasId);
+
+        if (!response)
         {
-            bool response = await _schoolService.UpdatePaskaitaForDepartamentas(PaskaitaId, DepartamentasId);
+            return NotFound();
+        }
 
-            if (!response)
-            {
-                return NotFound();
-            }
-
-            return Ok();
-        });
+        return Ok();
     }
 
     [HttpPost]
@@ -150,17 +125,14 @@ public class SchoolController : ControllerBase
     {
         Paskaita paskaita = Paskaita.ConvertFromRequest(request);
 
-        return await _handler.HandleErrors(async () =>
+        bool response = await _schoolService.NewPaskaitaToDepartamentas(paskaita: paskaita, DepartamentasId: DepartamentasId);
+
+        if (!response)
         {
-            bool response = await _schoolService.NewPaskaitaToDepartamentas(paskaita, DepartamentasId);
+            return Problem();
+        }
 
-            if (!response)
-            {
-                return Problem();
-            }
-
-            return NoContent();
-        });
+        return NoContent();
     }
 
     [HttpPost]
@@ -168,52 +140,40 @@ public class SchoolController : ControllerBase
     {
         Studentas studentas = Studentas.ConvertFromRequest(request);
 
-        return await _handler.HandleErrors(async () =>
+        bool response = await _schoolService.NewStudentasToDepartamentas(studentas: studentas, DepartamentasId: DepartamentasId);
+
+        if (!response)
         {
-            bool response = await _schoolService.NewStudentasToDepartamentas(studentas, DepartamentasId);
+            return Problem();
+        }
 
-            if (!response)
-            {
-                return Problem();
-            }
-
-            return NoContent();
-        });
+        return NoContent();
     }
 
     [HttpGet]
-    public async Task<IActionResult> ShowPaskaitosForStudentas(Guid StudentasId)
+    public async Task<IActionResult> ShowPaskaitosForStudentas(Guid Id)
     {
-        return await _handler.HandleErrors(async () =>
-        {
-            var result = await _schoolService.GetPaskaitosByStudentasId(StudentasId);
-            var response = result.Select(a => Paskaita.ConvertToResponse(a));
+        var result = await _schoolService.GetPaskaitosByStudentasId(StudentasId: Id);
+        var response = result.Select(a => Paskaita.ConvertToResponse(a));
 
-            return Ok(response);
-        });
+        return Ok(response);
     }
 
     [HttpGet]
-    public async Task<IActionResult> ShowPaskaitosInDepartamentas(Guid DepartamentasId)
+    public async Task<IActionResult> ShowPaskaitosInDepartamentas(Guid Id)
     {
-        return await _handler.HandleErrors(async () =>
-        {
-            var result = await _schoolService.GetPaskaitosInDepartamentas(DepartamentasId);
-            var response = result.Select(a => Paskaita.ConvertToResponse(a));
+        var result = await _schoolService.GetPaskaitosInDepartamentas(DepartamentasId: Id);
+        var response = result.Select(a => Paskaita.ConvertToResponse(a));
 
-            return Ok(response);
-        });
+        return Ok(response);
     }
 
     [HttpGet]
-    public async Task<IActionResult> ShowStudentaiInDepartamentas(Guid DepartamentasId)
+    public async Task<IActionResult> ShowStudentaiInDepartamentas(Guid Id)
     {
-        return await _handler.HandleErrors(async () =>
-        {
-            var result = await _schoolService.GetStudentaiInDepartamentas(DepartamentasId);
-            var response = result.Select(a => Studentas.ConvertToResponse(a));
+        var result = await _schoolService.GetStudentaiInDepartamentas(DepartamentasId: Id);
+        var response = result.Select(a => Studentas.ConvertToResponse(a));
 
-            return Ok(response);
-        });
+        return Ok(response);
     }
 }
