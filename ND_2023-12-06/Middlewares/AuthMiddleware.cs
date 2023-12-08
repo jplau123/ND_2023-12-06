@@ -42,13 +42,4 @@ namespace ND_2023_12_06.Middlewares
             return _next(httpContext);
         }
     }
-
-    // Extension method used to add the middleware to the HTTP request pipeline.
-    public static class AuthMiddlewareExtensions
-    {
-        public static IApplicationBuilder UseAuthMiddleware(this IApplicationBuilder builder)
-        {
-            return builder.UseMiddleware<AuthMiddleware>();
-        }
-    }
 }

@@ -1,5 +1,6 @@
 using DbUp;
 using ND_2023_12_06.Data;
+using ND_2023_12_06.Extensions;
 using ND_2023_12_06.Helpers;
 using ND_2023_12_06.Interfaces;
 using ND_2023_12_06.Middlewares;
@@ -19,6 +20,7 @@ builder.Services.AddSwaggerGen();
 // Dependency injection
 builder.Services.AddSingleton<ResponseHelper>();
 builder.Services.AddSingleton<IDapperDbContext, DapperContext>();
+
 builder.Services.AddScoped<ISchoolService, SchoolService>();
 builder.Services.AddScoped<IDepartamentasRepository, DepartamentasRepository>();
 builder.Services.AddScoped<IPaskaitaRepository, PaskaitaRepository>();
