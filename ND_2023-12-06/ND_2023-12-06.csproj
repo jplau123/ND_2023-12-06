@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <RootNamespace>ND_2023_12_06</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Scripts\Script0001_create-tables.sql" />
+    <None Remove="Scripts\Script0002_triggers.sql" />
+    <None Remove="Scripts\Script0003_add-indexes.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\Script0001_create-tables.sql" />
+    <EmbeddedResource Include="Scripts\Script0002_triggers.sql" />
+    <EmbeddedResource Include="Scripts\Script0003_add-indexes.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.24" />
+    <PackageReference Include="dbup-postgresql" Version="5.0.37" />
+    <PackageReference Include="Npgsql" Version="8.0.1" />
+    <PackageReference Include="Serilog" Version="3.1.1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
+    <PackageReference Include="Serilog.Settings.AppSettings" Version="2.2.2" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+</Project>
