@@ -1,10 +1,10 @@
 using DbUp;
 using ND_2023_12_06.Data;
+using ND_2023_12_06.Helpers;
 using ND_2023_12_06.Interfaces;
 using ND_2023_12_06.Repositories;
 using ND_2023_12_06.Services;
 using Serilog;
-using System.Net.NetworkInformation;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +18,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<IDapperDbContext, DapperContext>();
+builder.Services.AddSingleton<ResponseHelper>();
 builder.Services.AddScoped<ISchoolService, SchoolService>();
 builder.Services.AddScoped<IDepartamentasRepository, DepartamentasRepository>();
 builder.Services.AddScoped<IPaskaitaRepository, PaskaitaRepository>();

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ND_2023_12_06.DTOs;
 using ND_2023_12_06.Entities;
+using ND_2023_12_06.Helpers;
 using ND_2023_12_06.Interfaces;
 
 namespace ND_2023_12_06.Controllers;
@@ -9,19 +10,24 @@ namespace ND_2023_12_06.Controllers;
 [Route("api/[controller]/[action]")]
 public class SchoolController : ControllerBase
 {
-    private ISchoolService _schoolService;
+    private readonly ISchoolService _schoolService;
     private readonly ILogger<SchoolController> _logger;
+    private readonly ResponseHelper _handler;
 
-    public SchoolController(ISchoolService schoolService, ILogger<SchoolController> logger)
+    public SchoolController(
+        ISchoolService schoolService, 
+        ILogger<SchoolController> logger, 
+        ResponseHelper handler)
     {
         _schoolService = schoolService;
         _logger = logger;
+        _handler = handler;
     }
 
     [HttpPost]
     public async Task<IActionResult> CreateDepartamentas([FromBody] DepartamentasRequest request)
     {
-        try
+        return await _handler.HandleErrors(async () => 
         {
             var departamentas = Departamentas.ConvertFromRequest(request);
             var response = await _schoolService.CreateDepartamentas(departamentas);
@@ -31,44 +37,31 @@ public class SchoolController : ControllerBase
                 return BadRequest();
             }
 
-            // TODO implement CreatedAtAction()
-            //return CreatedAtAction();
-
             return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return BadRequest();
-        }
+        });
     }
 
     [HttpPost]
     public async Task<IActionResult> CreatePaskaita([FromBody] PaskaitaRequest request)
     {
-        try
+        return await _handler.HandleErrors(async () =>
         {
             var paskaita = Paskaita.ConvertFromRequest(request);
-
             var response = await _schoolService.CreatePaskaita(paskaita);
+
             if (!response)
             {
                 return BadRequest();
             }
 
             return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return BadRequest();
-        }
+        });
     }
 
     [HttpPost]
     public async Task<IActionResult> CreateStudentas([FromBody] StudentasRequest request)
     {
-        try
+        return await _handler.HandleErrors(async () =>
         {
             var studentas = Studentas.ConvertFromRequest(request);
 
@@ -80,18 +73,13 @@ public class SchoolController : ControllerBase
             }
 
             return Ok();
-        }
-        catch (Exception ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return BadRequest();
-        }
+        });
     }
 
     [HttpGet]
     public async Task<IActionResult> ShowDepartamentai()
     {
-        try
+        return await _handler.HandleErrors(async () =>
         {
             var result = await _schoolService.ShowDepartamentai();
 
@@ -99,51 +87,36 @@ public class SchoolController : ControllerBase
             var response = result.Select(a => Departamentas.ConvertToResponse(a));
 
             return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return BadRequest();
-        }
+        });
     }
 
     [HttpGet]
     public async Task<IActionResult> ShowPaskaitos()
     {
-        try
+        return await _handler.HandleErrors(async () =>
         {
             var result = await _schoolService.ShowPaskaitos();
             var response = result.Select(a => Paskaita.ConvertToResponse(a));
             return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return BadRequest();
-        }
+        });
     }
 
     [HttpGet]
     public async Task<IActionResult> ShowStudentai()
     {
-        try
+        return await _handler.HandleErrors(async () =>
         {
             var result = await _schoolService.ShowStudentai();
             var response = result.Select(a => Studentas.ConvertToResponse(a));
 
             return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return BadRequest();
-        }
+        });
     }
 
     [HttpPut]
     public async Task<IActionResult> UpdateDepartamentasForStudentas(Guid DepartamentasId, Guid StudentasId)
     {
-        try
+        return await _handler.HandleErrors(async () =>
         {
             bool response = await _schoolService.UpdateDepartamentasForStudentas(StudentasId, DepartamentasId);
 
@@ -151,25 +124,15 @@ public class SchoolController : ControllerBase
             {
                 return NotFound();
             }
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return NotFound();
-        }
-        catch (Exception ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return BadRequest();
-        }
 
-        return Ok();
+            return Ok();
+        });
     }
 
     [HttpPut]
     public async Task<IActionResult> AddPaskaitaToDepartamentas(Guid DepartamentasId, Guid PaskaitaId)
     {
-        try
+        return await _handler.HandleErrors(async () =>
         {
             bool response = await _schoolService.UpdatePaskaitaForDepartamentas(PaskaitaId, DepartamentasId);
 
@@ -177,19 +140,9 @@ public class SchoolController : ControllerBase
             {
                 return NotFound();
             }
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return NotFound();
-        }
-        catch (Exception ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return BadRequest();
-        }
 
-        return Ok();
+            return Ok();
+        });
     }
 
     [HttpPost]
@@ -197,7 +150,7 @@ public class SchoolController : ControllerBase
     {
         Paskaita paskaita = Paskaita.ConvertFromRequest(request);
 
-        try
+        return await _handler.HandleErrors(async () =>
         {
             bool response = await _schoolService.NewPaskaitaToDepartamentas(paskaita, DepartamentasId);
 
@@ -207,17 +160,7 @@ public class SchoolController : ControllerBase
             }
 
             return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return NotFound();
-        }
-        catch (Exception ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return BadRequest();
-        }
+        });
     }
 
     [HttpPost]
@@ -225,7 +168,7 @@ public class SchoolController : ControllerBase
     {
         Studentas studentas = Studentas.ConvertFromRequest(request);
 
-        try
+        return await _handler.HandleErrors(async () =>
         {
             bool response = await _schoolService.NewStudentasToDepartamentas(studentas, DepartamentasId);
 
@@ -233,84 +176,44 @@ public class SchoolController : ControllerBase
             {
                 return Problem();
             }
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return NotFound();
-        }
-        catch (Exception ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return BadRequest();
-        }
 
-        return NoContent();
+            return NoContent();
+        });
     }
 
     [HttpGet]
     public async Task<IActionResult> ShowPaskaitosForStudentas(Guid StudentasId)
     {
-        try
+        return await _handler.HandleErrors(async () =>
         {
             var result = await _schoolService.GetPaskaitosByStudentasId(StudentasId);
             var response = result.Select(a => Paskaita.ConvertToResponse(a));
 
             return Ok(response);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return NotFound();
-        }
-        catch (Exception ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return BadRequest();
-        }
-
+        });
     }
 
     [HttpGet]
     public async Task<IActionResult> ShowPaskaitosInDepartamentas(Guid DepartamentasId)
     {
-        try
+        return await _handler.HandleErrors(async () =>
         {
             var result = await _schoolService.GetPaskaitosInDepartamentas(DepartamentasId);
             var response = result.Select(a => Paskaita.ConvertToResponse(a));
 
             return Ok(response);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return NotFound();
-        }
-        catch (Exception ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return BadRequest();
-        }
+        });
     }
 
     [HttpGet]
     public async Task<IActionResult> ShowStudentaiInDepartamentas(Guid DepartamentasId)
     {
-        try
+        return await _handler.HandleErrors(async () =>
         {
             var result = await _schoolService.GetStudentaiInDepartamentas(DepartamentasId);
             var response = result.Select(a => Studentas.ConvertToResponse(a));
+
             return Ok(response);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return NotFound();
-        }
-        catch (Exception ex)
-        {
-            _logger.Log(LogLevel.Error, $"An exception occured: {ex.Message}");
-            return BadRequest();
-        }
+        });
     }
 }
